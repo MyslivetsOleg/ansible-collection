@@ -1,0 +1,66 @@
+---
+# tasks file for roles/postinstall
+
+- name: Set permanent hostname via hostnamectl
+  ansible.builtin.hostname:
+    name: "{{ new_hostname }}"
+    use: systemd
+  tags:
+  - hosts
+
+- name: Add FQDN to /etc/hosts
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ hostvars[inventory_hostname]['ansible_' + target_iface]['ipv4']['address'] }} {{ new_hostname }}.{{ new_domain }} {{ new_hostname }}"
+    state: present
+    create: yes
+  tags:
+  - hosts
+
+- name: Add backports repo
+  ansible.builtin.apt_repository:
+    repo: 'deb http://deb.debian.org/debian bookworm-backports main'
+    state: present
+    filename: 'backports'
+  tags:
+  - repos
+
+- name: Install base utils
+  ansible.builtin.apt:
+    name:  "{{ item }}"
+    state: present
+    update_cache: yes
+    default_release: bookworm-backports
+  loop:
+    "{{ packages_common }}"
+  tags: 
+  - repos
+
+- name: Create `{{ default_admin}}` group
+  ansible.builtin.group:
+    name: "{{ default_admin }}"
+    state: present 
+  tags:
+  - user
+
+- name: Create `{{ defaul_admin }}` user
+  ansible.builtin.user:
+    name: "{{ default_admin }}"
+    shell: /bin/bash
+    groups: "{{ default_admin }}"
+    password: "{{ plain_password | password_hash('sha512') }}"
+    append: true
+    create_home: true
+  tags:
+  - user
+
+- name: Add {{ default_admin }} sudo rights
+  ansible.builtin.template:
+    src: ../templates/admin-sudoers.j2
+    dest: "/etc/sudoers.d/{{ default_admin}}"
+    owner: root
+    group: root
+    mode: '0644'
+  tags:
+  - sudo
+

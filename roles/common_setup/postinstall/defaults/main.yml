@@ -1,0 +1,28 @@
+---
+# defaults file for roles/postinstall
+
+packages_common:
+  - linux-image-amd64
+  - linux-headers-amd64
+  - bash-completion
+  - vim
+  - curl
+  - wget
+  - mc
+  - htop
+  - tmux
+  - bpfcc-tools
+  - python3-bpfcc
+  - sudo
+
+new_hostname: new-hostname
+new_domain: test.local
+
+# used to assing hostname to direct interface (ex. 10.10.10.10 host.domain.local)
+target_iface: ens3
+
+# default sudo righrs for localadmin user
+default_admin: localadmin
+
+# change this! or use vaults or any thing you like
+plain_password: 12345678

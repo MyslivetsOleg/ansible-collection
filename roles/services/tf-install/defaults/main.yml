@@ -1,0 +1,6 @@
+---
+# defaults file for debian_afterinstall/roles/tf-install
+terraform_version: "1.6.6"
+terraform_zip: "terraform_{{ terraform_version }}_linux_amd64.zip"
+terraform_url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/{{ terraform_zip }}"
+download_dir: "/tmp"
