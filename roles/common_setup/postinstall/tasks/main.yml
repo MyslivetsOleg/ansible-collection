@@ -43,7 +43,7 @@
   tags:
   - user
 
-- name: Create `{{ defaul_admin }}` user
+- name: Create `{{ default_admin }}` user
   ansible.builtin.user:
     name: "{{ default_admin }}"
     shell: /bin/bash
@@ -54,13 +54,21 @@
   tags:
   - user
 
-- name: Add {{ default_admin }} sudo rights
+- name: Check if `{{ default_admin }}` sudoers file exits
+  ansible.builtin.stat:
+    path: "/etc/sudoers.d/{{ default_admin }}"
+  register: file_exists 
+  tags:
+  - sudo
+
+- name: Add `{{ default_admin }}` sudo rights
   ansible.builtin.template:
     src: ../templates/admin-sudoers.j2
-    dest: "/etc/sudoers.d/{{ default_admin}}"
+    dest: "/etc/sudoers.d/{{ default_admin }}"
     owner: root
     group: root
     mode: '0644'
+  when: not file_exists.stat.exists
   tags:
   - sudo
 

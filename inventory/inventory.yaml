@@ -1,3 +1,8 @@
-debian-servers:
+all:
   hosts:
-    10.31.52.96
+    runner:
+      ansible_host: 10.31.52.76
+  children:
+    debian-servers:
+      hosts:
+        runner:
