@@ -4,4 +4,5 @@
 
   roles:
     #    - common_setup/postinstall
-    - services/docker
+    - services/coredns
+    - services/minio-docker

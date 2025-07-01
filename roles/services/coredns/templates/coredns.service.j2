@@ -1,0 +1,15 @@
+[Unit]
+Description=Coredns Service (Docker)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+TimeoutStartSec=0
+ExecStartPre=/usr/bin/docker stop {{ dns_container_name }}
+ExecStartPre=-/usr/bin/docker rm -f {{ dns_container_name }}
+ExecStart=/usr/bin/docker run  --name {{ dns_container_name }} --volume={{ coredns_data_dir }}:/data/ --publish 53:53/udp  --cpus="1" coredns/coredns -conf /data/Corefile
+ExecStop=/usr/bin/docker stop -t 2 {{ dns_container_name }}
+
+[Install]
+WantedBy=multi-user.target

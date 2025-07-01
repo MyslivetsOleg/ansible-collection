@@ -14,7 +14,7 @@
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - "{{ minio_data_dir }}":/data
+      - "{{ minio_data_dir }}:/data"
     env:
       MINIO_ROOT_USER: "{{ minio_root_user }}"
       MINIO_ROOT_PASSWORD: "{{ minio_root_password }}"

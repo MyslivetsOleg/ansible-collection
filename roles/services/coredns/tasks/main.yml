@@ -1,0 +1,35 @@
+---
+# tasks file for roles/services/coredns
+- name: Create minio data dir at `{{ coredns_data_dir }}`
+  file:
+    path: "{{ coredns_data_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Copy Coredns config file
+  template:
+    src: templates/Coredns.j2
+    dest: "{{ coredns_data_dir }}/Corefile"
+
+- name: Copy dns zone config file
+  template:
+    src: templates/dns.db.j2
+    dest: "{{ coredns_data_dir }}/{{ coredns_db_filename }}"
+
+- name: Run CoreDns docker container
+  docker_container:
+    name: "{{ dns_container_name }}"
+    image: coredns/coredns:latest
+    pull: yes
+    ports:
+      - "53:53"
+    volumes:
+      - "{{ coredns_data_dir }}:/data"
+    command: -conf /data/Corefile
+    restart_policy: unless-stopped
+
+- name: Creating systemd-service for CoreDNS
+  template:
+    src: templates/coredns.service.j2
+    dest: /etc/systemd/system/coredns.service
+  notify: Restart Coredns

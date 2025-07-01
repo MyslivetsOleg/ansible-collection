@@ -1,0 +1,20 @@
+---
+# defaults file for roles/services/coredns
+coredns_data_dir: "/opt/coredns/"
+
+# change this to configure required zone
+# only 1 zone is available now
+coredns_db_filename: "dns.db"
+coredns_zone_name: "zonename.local"
+postmaster_email: "postmaster@mail.com"
+
+# interface to bind dns (necessary to get correct ip address)
+target_iface: ens3
+
+# change this to your local DNS
+dns_forwarders:
+  - 8.8.8.8
+  - 8.8.4.4
+
+# container options
+dns_container_name: "coredns"
