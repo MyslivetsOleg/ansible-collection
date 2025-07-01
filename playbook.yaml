@@ -3,4 +3,5 @@
   become: true
 
   roles:
-    - common_setup/postinstall
+    #    - common_setup/postinstall
+    - services/docker

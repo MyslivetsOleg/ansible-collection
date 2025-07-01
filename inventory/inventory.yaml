@@ -2,7 +2,10 @@ all:
   hosts:
     runner:
       ansible_host: 10.31.52.76
+    cicd:
+      ansible_host: 10.31.52.72
   children:
     debian-servers:
       hosts:
         runner:
+        cicd:
