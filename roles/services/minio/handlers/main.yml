@@ -1,0 +1,9 @@
+---
+- name: Перезагрузка systemd и перезапуск MinIO
+  systemd:
+    daemon_reload: yes
+
+- name: Перезапуск сервиса MinIO
+  service:
+    name: minio
+    state: restarted

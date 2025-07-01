@@ -1,0 +1,16 @@
+[Unit]
+Description=MinIO Docker Container
+Documentation=https://docs.min.io 
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart=always
+ExecStartPre=-/usr/bin/docker stop minio
+ExecStartPre=-/usr/bin/docker rm minio
+ExecStartPre=-/usr/bin/docker pull minio/minio:latest
+ExecStart=/usr/bin/docker run   --name minio   -p 9000:9000   -p 9001:9001   -v {{ minio_data_dir }}:/data   -e "MINIO_ROOT_USER={{ minio_root_user }}"   -e "MINIO_ROOT_PASSWORD={{ minio_root_password }}"   minio/minio:latest server /data --console-address :9001
+ExecStop=/usr/bin/docker stop minio
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,76 @@
+---
+- name: Установка зависимостей
+  apt:
+    name:
+      - aptitude
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Добавление GPG-ключа Docker
+  apt_key:
+    url: https://download.docker.com/linux/{{  ansible_distribution | lower }}/gpg
+    state: present
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Добавление репозитория Docker
+  apt_repository:
+    repo: deb https://download.docker.com/linux/{{  ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+    state: present
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Обновление кэша пакетов
+  apt:
+    update_cache: yes
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Установка Docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+  when: ansible_facts.os_family == 'Debian'
+- name: Создание директории для Docker CLI plugins
+  file:
+    path: /usr/local/libexec/docker/cli-plugins
+    state: directory
+    mode: 0755
+    recurse: yes
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Установка Docker Compose (через plugin)
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/{{  docker_compose_version }}/docker-compose-linux-x86_64"
+    dest: "/usr/local/libexec/docker/cli-plugins/docker-compose"
+    mode: 0755
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Проверка прав пользователя для Docker
+  stat:
+    path: /etc/docker
+  register: docker_dir_stat
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Создание группы docker, если не существует
+  group:
+    name: docker
+    state: present
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Добавление пользователя в группу docker
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
+  when: ansible_facts.os_family == 'Debian'
+
+- name: Перезапуск Docker
+  service:
+    name: docker
+    state: restarted
+  when: ansible_facts.os_family == 'Debian'
