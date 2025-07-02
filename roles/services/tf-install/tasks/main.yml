@@ -8,9 +8,9 @@
       state: present
       update_cache: yes
 
-  - name: Download Terraform by url
+  - name: Download Terraform
     block:
-      - name: Загрузить Terraform по URL
+      - name: Download Terraform by URL
         get_url:
           url: "{{ terraform_url }}"
           dest: "{{ download_dir }}/{{ terraform_zip }}"
@@ -52,16 +52,21 @@
       url: "{{ provider_url }}"
       dest: "/tmp/terraform-provider-opennebula.tar.gz"
 
+  - name: Ensure plugin directory exists
+    file:
+      path: "{{ plugin_path }}"
+      state: directory
+      mode: '0755'
+
   - name: Extract OpenNebula Terraform provider
     unarchive:
       src: "/tmp/terraform-provider-opennebula.tar.gz"
       dest: "{{ plugin_path }}"
       remote_src: yes
-      extra_opts: [--no-same-owner]
 
   - name: Ensure plugin is executable
     file:
-      path: "{{ plugin_path }}/terraform-provider-opennebula"
+      path: "{{ plugin_path }}/terraform-provider-opennebula_v{{ provider_version }}"
       mode: "0755"
       state: file
 
