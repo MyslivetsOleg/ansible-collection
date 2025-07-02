@@ -40,13 +40,6 @@
     command: terraform version
     register: terraform_version_output
 
-  - name: Ensure plugin directory exists
-    file:
-      path: "{{ plugin_path }}"
-      state: directory
-      mode: "0755"
-      recurse: yes
-
   - name: Download OpenNebula Terraform provider
     get_url:
       url: "{{ provider_url }}"
@@ -69,6 +62,15 @@
       path: "{{ plugin_path }}/terraform-provider-opennebula_v{{ provider_version }}"
       mode: "0755"
       state: file
+
+  - name: Recursive chown for .terraform.d directory
+    become: true
+    file:
+      path: "{{ ansible_user_dir }}/.terraform.d"
+      state: directory
+      recurse: yes
+      owner: "{{ ansible_user }}"
+      group: "{{ ansible_user }}"
 
   - name: Show Version
     debug:
