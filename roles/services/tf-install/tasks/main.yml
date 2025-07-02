@@ -1,67 +1,70 @@
 ---
 # tasks file for debian_afterinstall/roles/tf-install
-- name: Terraform {{ terraform_version }} Install
-  hosts: all
-  become: true
-  gather_facts: true
+  - name: Install Dependencies
+    apt:
+      name:
+        - unzip
+        - curl
+      state: present
+      update_cache: yes
 
-  tasks:
-    - name: Install Dependencies
-      apt:
-        name:
-          - unzip
-          - curl
-        state: present
-        update_cache: yes
+  - name: Download Terraform by url
+    block:
+      - name: Загрузить Terraform по URL
+        get_url:
+          url: "{{ terraform_url }}"
+          dest: "{{ download_dir }}/{{ terraform_zip }}"
+          mode: '0644'
 
-    - name: Download Terraform {{ terraform_version }}
-      get_url:
-        url: "{{ terraform_url }}"
-        dest: "{{ download_dir }}/{{ terraform_zip }}"
-        mode: '0644'
+    rescue:
+      - name: Use local zip to install TF
+        copy:
+          src: "{{ local_fallback_zip }}"
+          dest: "{{ download_dir }}/{{ terraform_zip }}"
+          mode: '0644'
 
-    - name: Unpacking Terraform
-      unarchive:
-        src: "{{ download_dir }}/{{ terraform_zip }}"
-        dest: "{{ download_dir }}"
-        remote_src: yes
+  - name: Unpacking Terraform
+    unarchive:
+      src: "{{ download_dir }}/{{ terraform_zip }}"
+      dest: "{{ download_dir }}"
+      remote_src: yes
 
-    - name: Install terraform в /usr/local/bin
-      copy:
-        src: "{{ download_dir }}/terraform"
-        dest: /usr/local/bin/terraform
-        mode: '0755'
-        remote_src: yes
+  - name: Install terraform в /usr/local/bin
+    copy:
+      src: "{{ download_dir }}/terraform"
+      dest: /usr/local/bin/terraform
+      mode: '0755'
+      remote_src: yes
 
-    - name: Check Terraform version
-      command: terraform version
-      register: terraform_version_output
+  - name: Check Terraform version
+    command: terraform version
+    register: terraform_version_output
 
-    - name: Ensure plugin directory exists
-      file:
-        path: "{{ plugin_path }}"
-        state: directory
-        mode: "0755"
-        recurse: yes
+  - name: Ensure plugin directory exists
+    file:
+      path: "{{ plugin_path }}"
+      state: directory
+      mode: "0755"
+      recurse: yes
 
-    - name: Download OpenNebula Terraform provider
-      get_url:
-        url: "{{ provider_url }}"
-        dest: "/tmp/terraform-provider-opennebula.tar.gz"
+  - name: Download OpenNebula Terraform provider
+    get_url:
+      url: "{{ provider_url }}"
+      dest: "/tmp/terraform-provider-opennebula.tar.gz"
 
-    - name: Extract OpenNebula Terraform provider
-      unarchive:
-        src: "/tmp/terraform-provider-opennebula.tar.gz"
-        dest: "{{ plugin_path }}"
-        remote_src: yes
-        extra_opts: [--no-same-owner]
+  - name: Extract OpenNebula Terraform provider
+    unarchive:
+      src: "/tmp/terraform-provider-opennebula.tar.gz"
+      dest: "{{ plugin_path }}"
+      remote_src: yes
+      extra_opts: [--no-same-owner]
 
-    - name: Ensure plugin is executable
-      file:
-        path: "{{ plugin_path }}/terraform-provider-opennebula"
-        mode: "0755"
-        state: file
+  - name: Ensure plugin is executable
+    file:
+      path: "{{ plugin_path }}/terraform-provider-opennebula"
+      mode: "0755"
+      state: file
 
-    - name: Show Version
-      debug:
-        msg: "{{ terraform_version_output.stdout }}"
+  - name: Show Version
+    debug:
+      msg: "{{ terraform_version_output.stdout }}"

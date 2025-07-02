@@ -4,5 +4,6 @@
 
   roles:
     #    - common_setup/postinstall
-    - services/coredns
-    - services/minio-docker
+    # - services/coredns
+    # - services/minio-docker
+    - services/tf-install
