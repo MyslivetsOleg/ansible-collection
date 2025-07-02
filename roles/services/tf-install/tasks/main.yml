@@ -44,6 +44,7 @@
     get_url:
       url: "{{ provider_url }}"
       dest: "/tmp/terraform-provider-opennebula.tar.gz"
+      force: true
 
   - name: Ensure plugin directory exists
     file:
@@ -64,13 +65,12 @@
       state: file
 
   - name: Recursive chown for .terraform.d directory
-    become: true
     file:
-      path: "{{ ansible_user_dir }}/.terraform.d"
+      path: "/home/{{ provider_user }}/.terraform.d"
       state: directory
       recurse: yes
-      owner: "{{ ansible_user }}"
-      group: "{{ ansible_user }}"
+      owner: "{{ provider_user }}"
+      group: "{{ provider_user }}"
 
   - name: Show Version
     debug:

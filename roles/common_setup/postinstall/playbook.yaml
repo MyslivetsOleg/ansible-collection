@@ -1,0 +1,6 @@
+- name: Debian postinstall playbook
+  hosts: debian-servers
+  become: true
+
+  roles:
+    - ../postinstall
