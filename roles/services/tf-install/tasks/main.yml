@@ -1,12 +1,12 @@
 ---
 # tasks file for debian_afterinstall/roles/tf-install
-- name: Установка Terraform 1.6.6 на Debian 12
+- name: Terraform {{ terraform_version }} Install
   hosts: all
   become: true
   gather_facts: true
 
   tasks:
-    - name: Установить зависимости
+    - name: Install Dependencies
       apt:
         name:
           - unzip
@@ -14,29 +14,54 @@
         state: present
         update_cache: yes
 
-    - name: Скачать Terraform {{ terraform_version }}
+    - name: Download Terraform {{ terraform_version }}
       get_url:
         url: "{{ terraform_url }}"
         dest: "{{ download_dir }}/{{ terraform_zip }}"
         mode: '0644'
 
-    - name: Распаковать Terraform
+    - name: Unpacking Terraform
       unarchive:
         src: "{{ download_dir }}/{{ terraform_zip }}"
         dest: "{{ download_dir }}"
         remote_src: yes
 
-    - name: Переместить бинарник terraform в /usr/local/bin
+    - name: Install terraform в /usr/local/bin
       copy:
         src: "{{ download_dir }}/terraform"
         dest: /usr/local/bin/terraform
         mode: '0755'
         remote_src: yes
 
-    - name: Проверить версию Terraform
+    - name: Check Terraform version
       command: terraform version
       register: terraform_version_output
 
-    - name: Показать установленную версию
+    - name: Ensure plugin directory exists
+      file:
+        path: "{{ plugin_path }}"
+        state: directory
+        mode: "0755"
+        recurse: yes
+
+    - name: Download OpenNebula Terraform provider
+      get_url:
+        url: "{{ provider_url }}"
+        dest: "/tmp/terraform-provider-opennebula.tar.gz"
+
+    - name: Extract OpenNebula Terraform provider
+      unarchive:
+        src: "/tmp/terraform-provider-opennebula.tar.gz"
+        dest: "{{ plugin_path }}"
+        remote_src: yes
+        extra_opts: [--no-same-owner]
+
+    - name: Ensure plugin is executable
+      file:
+        path: "{{ plugin_path }}/terraform-provider-opennebula"
+        mode: "0755"
+        state: file
+
+    - name: Show Version
       debug:
         msg: "{{ terraform_version_output.stdout }}"

@@ -1,6 +1,12 @@
 ---
 # defaults file for debian_afterinstall/roles/tf-install
-terraform_version: "1.6.6"
+terraform_version: "1.4.1"
 terraform_zip: "terraform_{{ terraform_version }}_linux_amd64.zip"
 terraform_url: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/{{ terraform_zip }}"
 download_dir: "/tmp"
+
+provider_version: "1.0.0"
+provider_os: "linux"
+provider_arch: "amd64"
+provider_url: "https://github.com/OpenNebula/terraform-provider-opennebula/releases/download/v{{ provider_version }}/terraform-provider-opennebula-{{ provider_os }}-{{ provider_arch }}.tar.gz"
+plugin_path: "{{ ansible_env.HOME }}/.terraform.d/plugins/registry.terraform.io/opennebula/opennebula/{{ provider_version }}/{{ provider_os }}_{{ provider_arch }}"
