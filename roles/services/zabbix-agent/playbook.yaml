@@ -1,0 +1,6 @@
+- name: Debian zabbix-agent installation playbook
+  hosts: "{{ target_hosts | default('all') }}"
+  become: true
+
+  roles:
+    - ../zabbix-agent
