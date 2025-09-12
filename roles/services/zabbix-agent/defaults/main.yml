@@ -1,2 +1,19 @@
 ---
 # defaults file for roles/services/zabbix-agent
+
+
+# Версия Zabbix Agent 2 (например: 7.0, 6.4, 6.0)
+# Полный список версий: https://repo.zabbix.com/zabbix/
+zabbix_agent_version: "7.0"
+
+# Настройки Zabbix Agent 2
+zabbix_server: "192.168.1.10"     # IP или hostname Zabbix сервера
+zabbix_hostname: "{{ inventory_hostname }}"  # Имя хоста в Zabbix (можно переопределить)
+zabbix_log_level: "3"             # 0-4: критичность логов
+zabbix_tls_connect: "unencrypted" # unencrypted, psk, cert
+zabbix_tls_accept: "unencrypted"  # unencrypted, psk, cert
+zabbix_tls_ca_file: ""
+zabbix_tls_cert_file: ""
+zabbix_tls_key_file: ""
+zabbix_tls_psk_file: ""
+zabbix_tls_psk_identity: ""
