@@ -1,5 +1,5 @@
 - name: Debian postinstall playbook
-  hosts: debian-servers
+  hosts: "{{ target_hosts | default('all') }}"
   become: true
 
   roles:
