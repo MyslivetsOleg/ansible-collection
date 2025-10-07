@@ -13,7 +13,5 @@ provider_zip: "terraform-provider-opennebula_{{ provider_version }}_linux_amd64.
 provider_url: "https://github.com/OpenNebula/terraform-provider-opennebula/releases/download/v{{ provider_version }}/{{ provider_zip }}"
 provider_user: localadmin
 plugin_path: "/home/{{ provider_user }}/.terraform.d/plugins/registry.terraform.io/opennebula/opennebula/{{ provider_version }}/{{ provider_os }}_{{ provider_arch }}"
-
-terraform_zip: "terraform_{{ terraform_version }}_linux_amd64.zip"
 local_fallback_zip: "files/{{ terraform_zip }}"
 
