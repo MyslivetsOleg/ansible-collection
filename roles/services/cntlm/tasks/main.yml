@@ -1,0 +1,20 @@
+---
+- name: Validate required variables
+  ansible.builtin.import_tasks: validate.yml
+  tags: [cntlm_validate]
+
+- name: Install cntlm from RPM
+  ansible.builtin.import_tasks: install.yml
+  tags: [cntlm_install]
+
+- name: Configure cntlm
+  ansible.builtin.import_tasks: configure.yml
+  tags: [cntlm_configure]
+
+- name: Configure systemd service
+  ansible.builtin.import_tasks: service.yml
+  tags: [cntlm_service]
+
+- name: Verify cntlm is working
+  ansible.builtin.import_tasks: verify.yml
+  tags: [cntlm_verify]

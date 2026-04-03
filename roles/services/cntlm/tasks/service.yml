@@ -1,0 +1,33 @@
+---
+# - name: Create cntlm.pid file
+#   ansible.builtin.file:
+#     name: /run/cntlm.pid
+#     owner: root
+#     group: root
+#     mode: "0644"
+#     state: touch
+#   become: yes
+
+- name: Deploy systemd unit file for cntlm
+  ansible.builtin.template:
+    src: cntlm.service.j2
+    dest: "/etc/systemd/system/{{ cntlm_service_name }}.service"
+    owner: cntlm
+    group: cntlm
+    mode: "0644"
+  become: yes
+  notify:
+    - reload systemd
+    - restart cntlm
+
+# Сбрасываем handlers немедленно, чтобы systemd успел подхватить
+# новый unit до того, как service-таска попытается его запустить
+- name: Flush handlers to reload systemd before service start
+  ansible.builtin.meta: flush_handlers
+
+- name: Enable and start cntlm service
+  ansible.builtin.service:
+    name: "{{ cntlm_service_name }}"
+    enabled: "{{ cntlm_service_enabled }}"
+    state: "{{ cntlm_service_state }}"
+  become: yes

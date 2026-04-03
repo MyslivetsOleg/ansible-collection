@@ -1,0 +1,13 @@
+---
+- name: Deploy cntlm config from template
+  ansible.builtin.template:
+    src: cntlm.conf.j2
+    dest: "{{ cntlm_conf_path }}"
+    owner: root
+    group: "{{ cntlm_service_group }}"
+    # 0640: root читает/пишет, группа cntlm читает, остальные — нет
+    # конфиг содержит NTLMv2-хэш, world-readable недопустимо
+    mode: "0640"
+    backup: yes
+  become: yes
+  notify: restart cntlm

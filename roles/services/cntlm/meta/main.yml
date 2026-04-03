@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  role_name: cntlm
+  description: "Install and configure CNTLM NTLM proxy from local RPM with systemd service"
+  author: ""
+  license: MIT
+  min_ansible_version: "2.12"
+  platforms:
+    - name: EL
+      versions: ["7", "8", "9"]
+  categories:
+    - networking
+    - system
+
+dependencies: []

@@ -1,0 +1,53 @@
+---
+- name: Check if cntlm binary already exists
+  ansible.builtin.stat:
+    path: "{{ cntlm_bin_path }}"
+  register: _cntlm_bin_stat
+
+- name: Copy RPM package to remote host
+  ansible.builtin.copy:
+    src: "{{ cntlm_rpm_src }}"
+    dest: "/tmp/cntlm_install.rpm"
+    owner: root
+    group: root
+    mode: "0644"
+  become: yes
+  when: not _cntlm_bin_stat.stat.exists
+
+- name: Install cntlm from local RPM
+  ansible.builtin.dnf:
+    name: "/tmp/cntlm_install.rpm"
+    state: present
+    disable_gpg_check: false
+  become: yes
+  when: not _cntlm_bin_stat.stat.exists
+
+- name: Remove temporary RPM file
+  ansible.builtin.file:
+    path: "/tmp/cntlm_install.rpm"
+    state: absent
+  become: yes
+
+- name: Verify cntlm binary is present after install
+  ansible.builtin.stat:
+    path: "{{ cntlm_bin_path }}"
+  register: _cntlm_bin_after
+  failed_when: not _cntlm_bin_after.stat.exists
+
+- name: Ensure cntlm system group exists
+  ansible.builtin.group:
+    name: "{{ cntlm_service_group }}"
+    system: true
+    state: present
+  become: yes
+
+- name: Ensure cntlm system user exists
+  ansible.builtin.user:
+    name: "{{ cntlm_service_user }}"
+    group: "{{ cntlm_service_group }}"
+    system: true
+    shell: /sbin/nologin
+    home: /var/lib/cntlm
+    create_home: false
+    comment: "CNTLM proxy service account"
+  become: yes

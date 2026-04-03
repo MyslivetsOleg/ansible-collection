@@ -1,0 +1,33 @@
+---
+- name: Wait for cntlm port to open
+  ansible.builtin.wait_for:
+    host: "{{ cntlm_listen_address }}"
+    port: "{{ cntlm_listen_port }}"
+    timeout: "{{ cntlm_wait_timeout }}"
+    state: started
+  when: cntlm_run_check
+
+- name: Test HTTP request through cntlm proxy
+  ansible.builtin.uri:
+    url: "{{ cntlm_check_url }}"
+    return_content: no
+    # 200/301/302 — успех; 407 — cntlm слушает, но upstream требует авторизации
+    status_code: [200, 301, 302, 407]
+  environment:
+    http_proxy: "http://{{ cntlm_listen_address }}:{{ cntlm_listen_port }}"
+    https_proxy: "http://{{ cntlm_listen_address }}:{{ cntlm_listen_port }}"
+  register: _cntlm_probe
+  when: cntlm_run_check
+  # Сам порт уже проверен через wait_for — здесь только информационный тест
+  failed_when: false
+
+- name: Report proxy check result
+  ansible.builtin.debug:
+    msg: >-
+      Проверка прокси завершена.
+      URL: {{ cntlm_check_url }}
+      Прокси: {{ cntlm_listen_address }}:{{ cntlm_listen_port }}
+      HTTP-статус: {{ _cntlm_probe.status | default('N/A') }}
+  when:
+    - cntlm_run_check
+    - _cntlm_probe is defined

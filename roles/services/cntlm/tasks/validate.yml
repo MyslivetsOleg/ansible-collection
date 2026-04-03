@@ -1,0 +1,38 @@
+---
+- name: Fail if cntlm_username is not set
+  ansible.builtin.fail:
+    msg: "Переменная 'cntlm_username' не задана."
+  when: cntlm_username | length == 0
+
+- name: Fail if cntlm_domain is not set
+  ansible.builtin.fail:
+    msg: "Переменная 'cntlm_domain' не задана."
+  when: cntlm_domain | length == 0
+
+- name: Fail if cntlm_ntlm_hash is not set
+  ansible.builtin.fail:
+    msg: >-
+      Переменная 'cntlm_ntlm_hash' не задана.
+      Сгенерируйте хэш: cntlm -H -u {{ cntlm_username }} -d {{ cntlm_domain }}
+      Результат рекомендуется хранить в Ansible Vault.
+  when: cntlm_ntlm_hash | length == 0
+
+- name: Fail if cntlm_proxy_list is empty
+  ansible.builtin.fail:
+    msg: "Переменная 'cntlm_proxy_list' пуста. Укажите хотя бы один upstream-прокси."
+  when: cntlm_proxy_list | length == 0
+
+- name: Check RPM file exists on Ansible controller
+  ansible.builtin.stat:
+    path: "{{ role_path }}/{{ cntlm_rpm_src }}"
+  register: _cntlm_rpm_stat
+  delegate_to: localhost
+  become: false
+
+- name: Fail if RPM file is missing
+  ansible.builtin.fail:
+    msg: >-
+      RPM-файл не найден: {{ role_path }}/{{ cntlm_rpm_src }}
+      Положите cntlm.rpm в директорию files/ роли
+      или укажите путь в переменной cntlm_rpm_src.
+  when: not _cntlm_rpm_stat.stat.exists
